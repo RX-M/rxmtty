@@ -38,6 +38,9 @@ struct Config {
     #[arg(long = "ssh-host", default_value = "127.0.0.1")]
     ssh_host: String,
 
+    #[arg(long = "ssh-user", default_value = "ubuntu")]
+    ssh_user: String,
+
     #[arg(long = "ssh-port", default_value_t = 22)]
     ssh_port: u16,
 
@@ -145,7 +148,7 @@ async fn terminal_session(socket: WebSocket, config: Arc<Config>) -> Result<()> 
         cmd.arg("-p");
         cmd.arg(config.ssh_port.to_string());
         cmd.arg("-tt");
-        cmd.arg(&config.ssh_host);
+        cmd.arg(format!("{}@{}", config.ssh_user, config.ssh_host));
         cmd
     };
     command.env("TERM", "xterm-256color");

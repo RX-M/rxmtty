@@ -4,7 +4,7 @@ Node/npm application.
 
 `rxm-wetty` serves a browser terminal at `/wetty` and upgrades the browser
 connection to WebSocket. Each browser session is bridged to a local PTY running
-`ssh 127.0.0.1`, so students still log in with the normal Linux account and
+`ssh ubuntu@127.0.0.1` by default, so students still log in with the normal Linux account and
 password while the server side no longer depends on Node, npm, or the
 `wettyoss/wetty` container.
 
@@ -33,6 +33,7 @@ Useful options:
 --host <HOST>              Listening address, default 0.0.0.0
 --base <PATH>              Browser base path, default /wetty
 --ssh-host <HOST>          SSH target, default 127.0.0.1
+--ssh-user <USER>          SSH login user, default ubuntu
 --ssh-port <PORT>          SSH target port, default 22
 --ssl-cert <PATH>          Optional TLS certificate PEM
 --ssl-key <PATH>           Optional TLS private key PEM
