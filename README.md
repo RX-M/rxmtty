@@ -87,13 +87,19 @@ $
 
 ## Examples
 
-Run rxmtty on port 8080:
+Common usage:
+
+
+### Run as a normal user on port 8080
 
 ```bash
 ./target/release/rxmtty -p 8080 --host 0.0.0.0 --base /tty
 ```
 
-Run rxmtty with TLS on port 443 with a self signed cert:
+
+### Run with TLS
+
+This example uses a self signed cert.
 
 ```bash
 $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=rx-m.com"
@@ -105,6 +111,9 @@ $ sudo ./target/release/rxmtty \
   --ssl-cert ./cert.pem \
   --ssl-key ./key.pem
 ```
+
+
+### Run on a cloud instance with Docker
 
 Find the public IP address of a cloud instance:
 
@@ -123,7 +132,9 @@ ubuntu@ip-172-31-88-233:~$ wget -O - https://get.docker.com | sh
 ubuntu@ip-172-31-88-233:~$ PASS="${1:-rx-m$(date +%Y%m%d)}"
 ubuntu@ip-172-31-88-233:~$ echo $PASS
 rx-m20260522
+ubuntu@ip-172-31-88-233:~$ sudo rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf #EC2 Ubuntu images disables password authentication in this file
 ubuntu@ip-172-31-88-233:~$ echo "ubuntu:${PASS}" | sudo chpasswd
+ubuntu@ip-172-31-46-254:~$ sudo systemctl restart ssh
 ubuntu@ip-172-31-88-233:~$ docker run --net=host  rxmllc/rxmtty
 
 rxmtty settings:
@@ -139,6 +150,36 @@ rxmtty settings:
 
 inbound connection from 12.178.57.23
 
+```
+
+
+### Run on a cloud instance with release binary
+
+Shows user connecting to: `http://54.173.71.160:8080/tty`
+
+```bash
+ubuntu@ip-172-31-46-254:~$ PASS="${1:-rx-m$(date +%Y%m%d)}"
+ubuntu@ip-172-31-46-254:~$ echo $PASS
+rx-m20260523
+ubuntu@ip-172-31-46-254:~$ wget https://github.com/RX-M/rxmtty/releases/download/v0.1.0/rxmtty
+ubuntu@ip-172-31-46-254:~$ chmod +x rxmtty
+ubuntu@ip-172-31-46-254:~$ sudo rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf #EC2 Ubuntu images disables password authentication in this file
+ubuntu@ip-172-31-46-254:~$ echo "ubuntu:${PASS}" | sudo chpasswd
+ubuntu@ip-172-31-46-254:~$ sudo systemctl restart ssh
+ubuntu@ip-172-31-46-254:~$ ./rxmtty -p 8080 --host 0.0.0.0 --base /tty
+
+rxmtty settings:
+  port: 8080
+  host: 0.0.0.0
+  base: /tty
+  ssh_host: 127.0.0.1
+  ssh_user: ubuntu
+  ssh_port: 22
+  command: <none>
+  ssl_cert: <none>
+  ssl_key: <none>
+
+inbound connection from 104.178.57.23
 ```
 
 
@@ -167,18 +208,13 @@ until curl -s --head http://169.254.169.254/latest/meta-data/ >/dev/null; do
   sleep 2
 done
 
-apt-get update -y
-sudo apt install build-essential -y
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-. "$HOME/.cargo/env"
-git clone https://github.com/RX-M/rxmtty /opt/rxmtty
-cargo build --manifest-path /opt/rxmtty/Cargo.toml --release
-install -m 0755 /opt/rxmtty/target/release/rxmtty /usr/local/bin/rxmtty
+wget https://github.com/RX-M/rxmtty/releases/download/v0.1.0/rxmtty
+chmod +x rxmtty
 PASS="${1:-rx-m$(date +%Y%m%d)}"
 echo "ubuntu:${PASS}" | chpasswd
 rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
 systemctl restart ssh
-/usr/local/bin/rxmtty -p 80 --host 0.0.0.0 --base /tty
+./rxmtty -p 80 --host 0.0.0.0 --base /tty
 ```
 
 After launching the instance you should be able to browse to `http://<pub-ip>/tty` and log in with the credentials
