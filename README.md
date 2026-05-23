@@ -45,7 +45,7 @@ cargo build --release
 The binary is created at:
 
 ```bash
-target/release/rxm-wetty
+target/release/rxmtty
 ```
 
 For a complete build example, see the `Dockerfile` in this repository.
@@ -116,7 +116,7 @@ ubuntu@ip-172-31-88-233:~$ curl icanhazip.com
 ubuntu@ip-172-31-88-233:~$ 
 ```
 
-Running rxmtty on a cloud instance using Docker:
+Running rxmtty on a cloud instance using Docker (shows user connecting to `http://18.212.169.66/tty`):
 
 ```bash
 ubuntu@ip-172-31-88-233:~$ wget -O - https://get.docker.com | sh
@@ -144,13 +144,14 @@ inbound connection from 12.178.57.23
 
 ## Caveats
 
-1. By default, `rxmtty` runs on port 80. You can add TLS support using the --ssl-cert/--ssl-key options, keep in mind
-   that self-signed certs will require users to click through browser security warnings to access the terminal.
-2. SFTP will not work, the browser communicates with `rxmtty` over WebSocket, then proxies traffic to the SSH backend.
-   As a work around, file uploads can be made by copying files from the browser machine to a cloud location (e.g.
-   github, S3, etc.) and then pulling the file down on the terminal host with wget or curl.
-3. You can not forward GUI windows over the `rxmtty` connection with X11. Any GUIs used on the remote system will have
-   to be web servers accessed with new browser tabs remotely over a separate connection.
+1. By default, `rxmtty` runs on port 80 without TLS. You can add TLS support using the --ssl-cert/--ssl-key options,
+   keep in mind that self-signed certs will require users to click through browser security warnings to access the
+   terminal.
+2. SFTP will not work, the browser communicates with `rxmtty` over WebSocket, which proxies traffic to the SSH backend.
+   File uploads can be made by copying files from the browser machine to a cloud location (e.g. github, S3, etc.) and
+   then pulling the file down on the terminal host with wget or curl.
+3. You can not forward GUI windows over the `rxmtty` connection with X11. You can however run web hosted GUIs on the
+   remote system and then access them in a new browser tabs.
 
 
 ## EC2 User Data
