@@ -193,6 +193,8 @@ inbound connection from 104.178.57.23
    then pulling the file down on the terminal host with wget or curl.
 3. You can not forward GUI windows over the `rxmtty` connection with X11. You can however run web hosted GUIs on the
    remote system and then access them in a new browser tabs.
+4. Users must authenticate with a password in the browser, the Browser is communicating over WebSocket not SSH protocol
+   so there is no way to auth with keys.
 
 
 ## EC2 User Data
