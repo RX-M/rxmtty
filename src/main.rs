@@ -262,7 +262,7 @@ fn render_index(base: &str) -> String {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RX-M Wetty</title>
+  <title>RX-M tty</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
   <style>
     html, body, #terminal {{

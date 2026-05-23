@@ -29,6 +29,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 PASS="${1:-rx-m$(date +%Y%m%d)}"
+USER="ubuntu"
 
 RXMTTY_PORT="${RXMTTY_PORT:-80}"
 RXMTTY_HOST="0.0.0.0"
@@ -45,8 +46,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 . "$HOME/.cargo/env"
 
 
-echo "[2/5] Setting password for user ubuntu..."
-echo "ubuntu:${PASS}" | chpasswd
+echo "[2/5] Setting password for user ${USER}..."
+echo "${USER}:${PASS}" | chpasswd
 rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
 systemctl restart ssh
 
@@ -66,7 +67,7 @@ After=ssh.service
 [Service]
 Type=simple
 WorkingDirectory=/root
-ExecStart=${RXMTTY_BIN} -p ${RXMTTY_PORT} --host ${RXMTTY_HOST} --base ${RXMTTY_BASE} --ssh-host 127.0.0.1
+ExecStart=${RXMTTY_BIN} -p ${RXMTTY_PORT} --host ${RXMTTY_HOST} --base ${RXMTTY_BASE} --ssh-host 127.0.0.1 --ssh-user ${USER}
 TimeoutStopSec=20
 KillMode=mixed
 Restart=always
@@ -81,7 +82,7 @@ systemctl enable --now rxmtty
 echo "[5/5] Done."
 echo "------------------------------------------------------------"
 echo "RX-M Web Terminal URL:      http://${PUB_IP}:${RXMTTY_PORT}${RXMTTY_BASE}"
-echo "Login user:     ubuntu"
+echo "Login user:     ${USER}"
 echo "Login password: ${PASS}"
 echo "Service status: systemctl status rxmtty --no-pager -l"
 echo "Logs:           journalctl -u rxmtty -f"

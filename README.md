@@ -18,20 +18,25 @@ User <-> Browser <--websocket--> rxmtty <-> ssh <--ssh-protocol--> sshd <-> Shel
 - ssh - secure remote shell protocol, handles authentication and session management (https://www.openssh.com/)
 
 `rxmtty` is designed to allow users who only have web browsing capabilities (say for security purposes) to terminal into
-a remote host, such as a cloud instance, using a web browser on port 80/443 (or any port you choose).
+a remote host, such as a cloud instance, using a web browser.
 
 The `rxmtty` server typically runs on the same system that runs the `sshd` service to be accessed but can also be
 configured to forward traffic to a remote `sshd` daemon.
 
-By default, `rxmtty` serves the browser terminal at `/tty` on all local interfaces using port 80. Upon connection,
-`rxmtty` upgrades the browser session to WebSocket. The browser session is then bridged to a local PTY running `ssh
-ubuntu@127.0.0.1` by default. The browser based user will be prompted for a password and then dropped into a terminal
-session on the remote host. Traffic is proxied back and forth over the websocket connection.
+By default, `rxmtty` serves the browser terminal at `/tty` on all local interfaces using port 80. Upon connection from a
+browser, `rxmtty` upgrades the browser session to WebSocket. The browser session is then bridged to a local PTY running
+`ssh ubuntu@127.0.0.1` (this is configurable). The browser based user will be prompted for a password and then dropped
+into a terminal session connected to the remote host. Traffic is proxied back and forth over the websocket connection.
+
+`rxmtty` is designed to be run on a Linux cloud instance. The binary has no dependencies and can simply be copied to the
+target system and run if ssh is installed. A Linux based Docker container image is provided at
+`docker.io/rxmllc/rxmtty:latest` (see Dockerfile in this repo). Though support is not provided here, we have also built
+and tested rxmtty on Windows without difficulty (YMMV).
 
 
 ## Build
 
-To build the `rxmtty` binary, clone the repository and run:
+To build the `rxmtty` binary, clone the repository and run from the repo root:
 
 ```bash
 cargo build --release
@@ -42,6 +47,8 @@ The binary is created at:
 ```bash
 target/release/rxm-wetty
 ```
+
+For a complete build example, see the `Dockerfile` in this repository.
 
 
 ## Run
@@ -83,7 +90,7 @@ $
 Run rxmtty on port 8080:
 
 ```bash
-sudo ./target/release/rxmtty -p 8080 --host 0.0.0.0 --base /tty
+./target/release/rxmtty -p 8080 --host 0.0.0.0 --base /tty
 ```
 
 Run rxmtty with TLS on port 443 with a self signed cert:
@@ -109,11 +116,16 @@ ubuntu@ip-172-31-88-233:~$ curl icanhazip.com
 ubuntu@ip-172-31-88-233:~$ 
 ```
 
-Setting up users and passwords:
+Running rxmtty on a cloud instance using Docker:
 
 ```bash
-sudo adduser student
-sudo passwd student
+ubuntu@ip-172-31-88-233:~$ wget -O - https://get.docker.com | sh
+ubuntu@ip-172-31-88-233:~$ PASS="${1:-rx-m$(date +%Y%m%d)}"
+ubuntu@ip-172-31-88-233:~$ echo $PASS
+rx-m20260522
+ubuntu@ip-172-31-88-233:~$ echo "ubuntu:${PASS}" | sudo chpasswd
+ubuntu@ip-172-31-88-233:~$ docker run --net=host  rxmllc/rxmtty
+
 ```
 
 
