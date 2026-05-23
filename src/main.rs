@@ -7,18 +7,19 @@ use std::{
 
 use anyhow::{Context, Result};
 use axum::{
+    Router,
     extract::{
-        ws::{Message, WebSocket, WebSocketUpgrade},
         State,
+        connect_info::ConnectInfo,
+        ws::{Message, WebSocket, WebSocketUpgrade},
     },
-    http::{header, HeaderMap, StatusCode},
+    http::{HeaderMap, StatusCode, header},
     response::{Html, IntoResponse},
     routing::get,
-    Router,
 };
 use clap::Parser;
 use futures_util::{SinkExt, StreamExt};
-use portable_pty::{native_pty_system, CommandBuilder, PtySize};
+use portable_pty::{CommandBuilder, PtySize, native_pty_system};
 use serde::Deserialize;
 use tokio::sync::mpsc;
 use tracing::{error, info};
@@ -81,18 +82,19 @@ async fn main() -> Result<()> {
         .route(&format!("{}/ws", config.base), get(ws_handler))
         .with_state(state);
 
+    display_startup_settings(&config);
     info!("listening on {}{}", addr, config.base);
     if let (Some(cert), Some(key)) = (&config.ssl_cert, &config.ssl_key) {
         let tls = axum_server::tls_rustls::RustlsConfig::from_pem_file(cert, key)
             .await
             .context("failed to load TLS certificate or key")?;
         axum_server::bind_rustls(addr, tls)
-            .serve(app.into_make_service())
+            .serve(app.into_make_service_with_connect_info::<SocketAddr>())
             .await
             .context("server failed")?;
     } else {
         axum_server::bind(addr)
-            .serve(app.into_make_service())
+            .serve(app.into_make_service_with_connect_info::<SocketAddr>())
             .await
             .context("server failed")?;
     }
@@ -104,7 +106,11 @@ async fn redirect_to_base(State(state): State<AppState>) -> impl IntoResponse {
     let mut headers = HeaderMap::new();
     headers.insert(
         header::LOCATION,
-        state.config.base.parse().unwrap_or_else(|_| "/tty".parse().unwrap()),
+        state
+            .config
+            .base
+            .parse()
+            .unwrap_or_else(|_| "/tty".parse().unwrap()),
     );
     (StatusCode::TEMPORARY_REDIRECT, headers)
 }
@@ -113,7 +119,12 @@ async fn index(State(state): State<AppState>) -> Html<String> {
     Html(render_index(&state.config.base))
 }
 
-async fn ws_handler(ws: WebSocketUpgrade, State(state): State<AppState>) -> impl IntoResponse {
+async fn ws_handler(
+    ws: WebSocketUpgrade,
+    ConnectInfo(remote_addr): ConnectInfo<SocketAddr>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    println!("inbound connection from {}", remote_addr.ip());
     ws.on_upgrade(move |socket| async move {
         if let Err(err) = terminal_session(socket, state.config).await {
             error!("{err:#}");
@@ -253,6 +264,28 @@ fn normalize_base(base: &str) -> String {
         format!("/{trimmed}")
     };
     with_slash.trim_end_matches('/').to_string()
+}
+
+fn display_startup_settings(config: &Config) {
+    println!("rxmtty settings:");
+    println!("  port: {}", config.port);
+    println!("  host: {}", config.host);
+    println!("  base: {}", config.base);
+    println!("  ssh_host: {}", config.ssh_host);
+    println!("  ssh_user: {}", config.ssh_user);
+    println!("  ssh_port: {}", config.ssh_port);
+    println!(
+        "  command: {}",
+        config.command.as_deref().unwrap_or("<none>")
+    );
+    println!(
+        "  ssl_cert: {}",
+        config.ssl_cert.as_deref().unwrap_or("<none>")
+    );
+    println!(
+        "  ssl_key: {}",
+        config.ssl_key.as_deref().unwrap_or("<none>")
+    );
 }
 
 fn render_index(base: &str) -> String {
