@@ -126,6 +126,19 @@ rx-m20260522
 ubuntu@ip-172-31-88-233:~$ echo "ubuntu:${PASS}" | sudo chpasswd
 ubuntu@ip-172-31-88-233:~$ docker run --net=host  rxmllc/rxmtty
 
+rxmtty settings:
+  port: 80
+  host: 0.0.0.0
+  base: /tty
+  ssh_host: 127.0.0.1
+  ssh_user: ubuntu
+  ssh_port: 22
+  command: <none>
+  ssl_cert: <none>
+  ssl_key: <none>
+
+inbound connection from 12.178.57.23
+
 ```
 
 
