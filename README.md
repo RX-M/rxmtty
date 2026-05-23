@@ -12,9 +12,10 @@ User <-> Browser <--websocket--> rxmtty <-> ssh <--ssh-protocol--> sshd <-> Shel
 
 `rxmtty` technology stack:
 
-- Rust - fast, safe, minimal server
+- Rust - fast, safe, minimal server with TLS support and low resource usage (https://www.rust-lang.org/)
 - Xterm.js - fast native JavaScript browser-based terminal interface (https://github.com/xtermjs/xterm.js/)
-- WebSocket - fast bidirectional browser to server communication
+- WebSocket - fast bidirectional browser to server communication (https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+- ssh - secure remote shell protocol, handles authentication and session management (https://www.openssh.com/)
 
 `rxmtty` is designed to allow users who only have web browsing capabilities (say for security purposes) to terminal into
 a remote host, such as a cloud instance, using a web browser on port 80/443 (or any port you choose).
