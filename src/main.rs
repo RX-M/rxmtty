@@ -32,7 +32,7 @@ struct Config {
     #[arg(long = "host", default_value = "0.0.0.0")]
     host: String,
 
-    #[arg(long = "base", default_value = "/wetty")]
+    #[arg(long = "base", default_value = "/tty")]
     base: String,
 
     #[arg(long = "ssh-host", default_value = "127.0.0.1")]
@@ -104,7 +104,7 @@ async fn redirect_to_base(State(state): State<AppState>) -> impl IntoResponse {
     let mut headers = HeaderMap::new();
     headers.insert(
         header::LOCATION,
-        state.config.base.parse().unwrap_or_else(|_| "/wetty".parse().unwrap()),
+        state.config.base.parse().unwrap_or_else(|_| "/tty".parse().unwrap()),
     );
     (StatusCode::TEMPORARY_REDIRECT, headers)
 }
@@ -244,7 +244,7 @@ struct ResizeMessage {
 fn normalize_base(base: &str) -> String {
     let trimmed = base.trim();
     if trimmed.is_empty() || trimmed == "/" {
-        return "/wetty".to_string();
+        return "/tty".to_string();
     }
 
     let with_slash = if trimmed.starts_with('/') {
@@ -262,7 +262,7 @@ fn render_index(base: &str) -> String {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RX-M wetty</title>
+  <title>RX-M Wetty</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
   <style>
     html, body, #terminal {{

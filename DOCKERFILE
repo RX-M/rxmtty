@@ -1,0 +1,10 @@
+FROM docker.io/ubuntu:24.04
+
+RUN apt-get update -y && apt install build-essential -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN git clone https://github.com/RX-M/rxm-wetty /opt/rxm-wetty
+RUN cargo build --manifest-path /opt/rxm-wetty/Cargo.toml --release
+RUN install -m 0755 /opt/rxm-wetty/target/release/rxm-wetty /usr/local/bin/rxm-wetty
+RUN PASS="${1:-rx-m$(date +%Y%m%d)}" && echo "ubuntu:${PASS}" | chpasswd
+RUN rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+CMD ["/usr/local/bin/rxm-wetty"]
