@@ -102,7 +102,7 @@ Common usage:
 This example uses a self signed cert.
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=rx-m.com"
+$ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes -subj "/C=US/ST=FL/L=Miami/O=RXM/CN=rx-m.com"
 
 $ sudo ./target/release/rxmtty \
   -p 443 \
@@ -132,7 +132,7 @@ ubuntu@ip-172-31-88-233:~$ wget -O - https://get.docker.com | sh
 ubuntu@ip-172-31-88-233:~$ PASS="${1:-rx-m$(date +%Y%m%d)}"
 ubuntu@ip-172-31-88-233:~$ echo $PASS
 rx-m20260522
-ubuntu@ip-172-31-88-233:~$ sudo rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf #EC2 Ubuntu images disables password authentication in this file
+ubuntu@ip-172-31-88-233:~$ sudo rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf #EC2 Ubuntu images disable pwd auth in this file
 ubuntu@ip-172-31-88-233:~$ echo "ubuntu:${PASS}" | sudo chpasswd
 ubuntu@ip-172-31-46-254:~$ sudo systemctl restart ssh
 ubuntu@ip-172-31-88-233:~$ docker run --net=host  rxmllc/rxmtty
@@ -163,7 +163,7 @@ ubuntu@ip-172-31-46-254:~$ echo $PASS
 rx-m20260523
 ubuntu@ip-172-31-46-254:~$ wget https://github.com/RX-M/rxmtty/releases/download/v0.1.0/rxmtty
 ubuntu@ip-172-31-46-254:~$ chmod +x rxmtty
-ubuntu@ip-172-31-46-254:~$ sudo rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf #EC2 Ubuntu images disables password authentication in this file
+ubuntu@ip-172-31-46-254:~$ sudo rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf #EC2 Ubuntu images disable pwd auth in this file
 ubuntu@ip-172-31-46-254:~$ echo "ubuntu:${PASS}" | sudo chpasswd
 ubuntu@ip-172-31-46-254:~$ sudo systemctl restart ssh
 ubuntu@ip-172-31-46-254:~$ ./rxmtty -p 8080 --host 0.0.0.0 --base /tty
@@ -192,7 +192,7 @@ inbound connection from 104.178.57.23
    File uploads can be made by copying files from the browser machine to a cloud location (e.g. github, S3, etc.) and
    then pulling the file down on the terminal host with wget or curl.
 3. You can not forward GUI windows over the `rxmtty` connection with X11. You can however run web hosted GUIs on the
-   remote system and then access them in a new browser tabs.
+   remote system and then access them in a new browser tab.
 4. Users must authenticate with a password in the browser, the Browser is communicating over WebSocket not SSH protocol
    so there is no way to auth with keys.
 
