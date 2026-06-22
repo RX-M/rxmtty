@@ -129,6 +129,8 @@ Running rxmtty on a cloud instance using Docker (shows user connecting to `http:
 
 ```bash
 ubuntu@ip-172-31-88-233:~$ wget -O - https://get.docker.com | sh
+ubuntu@ip-172-31-88-233:~$ sudo usermod -aG docker ubuntu
+ubuntu@ip-172-31-88-233:~$ newgrp docker
 ubuntu@ip-172-31-88-233:~$ PASS="${1:-rx-m$(date +%Y%m%d)}"
 ubuntu@ip-172-31-88-233:~$ echo $PASS
 rx-m20260522

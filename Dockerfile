@@ -16,5 +16,6 @@ LABEL org.opencontainers.image.version=1.0.0
 LABEL org.opencontainers.image.authors=rx-m
 LABEL org.opencontainers.image.url=https://rx-m.com
 COPY --from=builder /rxmtty/target/x86_64-unknown-linux-musl/release/rxmtty /rxmtty
+RUN apk add --no-cache libcap && setcap cap_net_bind_service=+ep /rxmtty && apk del libcap
 USER 65534
 ENTRYPOINT ["/rxmtty"]
